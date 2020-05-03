@@ -275,7 +275,7 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 # rewards_all_episodes = []
 
-STATE_DIMENSION = 14
+STATE_DIMENSION = 28
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.22 # m/s
 ACTION_W_MAX = 2 # rad/s
@@ -293,7 +293,7 @@ print('Action Dimensions: ' + str(ACTION_DIMENSION))
 print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad/s')
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
-trainer.load_models(1560)
+#trainer.load_models(1560)
 
 
 if __name__ == '__main__':
