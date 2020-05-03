@@ -191,12 +191,12 @@ class Trainer:
     def get_exploration_action(self, state):
         state = torch.from_numpy(state)
         action = self.actor.forward(state).detach()
-        #noise = self.noise.sample()
+        noise = self.noise.sample()
         #print('noisea', noise)
-        #noise[0] = noise[0]*self.action_limit_v
-        #noise[1] = noise[1]*self.action_limit_w
+        noise[0] = noise[0]*self.action_limit_v
+        noise[1] = noise[1]*self.action_limit_w
         #print('noise', noise)
-        new_action = action.data.numpy() #+ noise
+        new_action = action.data.numpy() + noise
         #print('action_no', new_action)
         return new_action
     
@@ -275,7 +275,7 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 # rewards_all_episodes = []
 
-STATE_DIMENSION = 28
+STATE_DIMENSION = 14
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.22 # m/s
 ACTION_W_MAX = 2 # rad/s
@@ -362,6 +362,10 @@ if __name__ == '__main__':
                     if ram.len >= before_training*MAX_STEPS:
                         result = round(rewards_current_episode/step, 2)
                         pub_result.publish(result)
+
+                mlflow.log_metric("reward")
+                mlflow.log_metric("epsilon")
+                mlflow.log_metric("memory", ram.len)
                 break
         if ep%20 == 0:
             trainer.save_models(ep)
