@@ -19,6 +19,7 @@ import torch.nn as nn
 import math
 from collections import deque
 import copy
+import mlflow
 
 
 #---Directory Path---#
@@ -305,6 +306,8 @@ if __name__ == '__main__':
 
     past_action = np.array([0.,0.])
 
+    mlflow.start_run()
+
     for ep in range(MAX_EPISODES):
         done = False
         state = env.reset()
@@ -363,11 +366,12 @@ if __name__ == '__main__':
                         result = round(rewards_current_episode/step, 2)
                         pub_result.publish(result)
 
-                mlflow.log_metric("reward")
-                mlflow.log_metric("epsilon")
+                mlflow.log_metric("reward", rewards_current_episode)
                 mlflow.log_metric("memory", ram.len)
                 break
         if ep%20 == 0:
             trainer.save_models(ep)
+    
+    mlflow.end_run()
 
 print('Completed Training')
