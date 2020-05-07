@@ -176,6 +176,7 @@ class Trainer:
         #print('w',self.action_limit_w)
         self.ram = ram
         #self.iter = 0 
+        self.noise = OUNoise(self.action_dim)
         
         self.actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
         self.target_actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
