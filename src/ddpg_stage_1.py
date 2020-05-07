@@ -176,7 +176,6 @@ class Trainer:
         #print('w',self.action_limit_w)
         self.ram = ram
         #self.iter = 0 
-        self.noise = OUNoise(self.action_dim)
         
         self.actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
         self.target_actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
@@ -200,12 +199,12 @@ class Trainer:
     def get_exploration_action(self, state):
         state = torch.from_numpy(state)
         action = self.actor.forward(state).detach()
-        noise = self.noise.get_noise()
+        #noise = self.noise.get_noise()
         #print('noisea', noise)
-        noise[0] = noise[0]*self.action_limit_v
-        noise[1] = noise[1]*self.action_limit_w
+        #noise[0] = noise[0]*self.action_limit_v
+        #noise[1] = noise[1]*self.action_limit_w
         #print('noise', noise)
-        new_action = action.data.numpy() + noise
+        new_action = action.data.numpy() # + noise
         #print('action_no', new_action)
         return new_action
     
@@ -288,7 +287,7 @@ STATE_DIMENSION = 14
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.22 # m/s
 ACTION_W_MAX = 2. # rad/s
-world = 'stage_2'
+world = 'stage_4'
 
 if is_training:
     var_v = ACTION_V_MAX*.5
