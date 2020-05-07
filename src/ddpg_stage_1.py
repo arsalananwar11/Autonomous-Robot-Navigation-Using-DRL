@@ -200,7 +200,7 @@ class Trainer:
     def get_exploration_action(self, state):
         state = torch.from_numpy(state)
         action = self.actor.forward(state).detach()
-        noise = self.noise.sample()
+        noise = self.noise.get_noise()
         #print('noisea', noise)
         noise[0] = noise[0]*self.action_limit_v
         noise[1] = noise[1]*self.action_limit_w
