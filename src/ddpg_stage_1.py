@@ -19,7 +19,8 @@ import torch.nn as nn
 import math
 from collections import deque
 import copy
-import mlflow
+#import mlflow
+from torch.utils.tensorboard import SummaryWriter
 
 
 #---Directory Path---#
@@ -254,6 +255,8 @@ class Trainer:
         #----------------------------
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
 
+        writer.add_scalar("loss_critic", loss_critic)
+        writer.add_scalar("critic_ref", y_expected.mean())
         
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
@@ -265,6 +268,8 @@ class Trainer:
         
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
+
+        writer.add_scalar("loss_actor")
         self.actor_optimizer.step()
         
         soft_update(self.target_actor, self.actor, TAU)
@@ -326,6 +331,8 @@ ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 
 noise = OUNoise(ACTION_DIMENSION)
+writer = SummaryWriter()
+
 # trainer.load_models(140)
 
 if __name__ == '__main__':
@@ -336,8 +343,6 @@ if __name__ == '__main__':
     before_training = 1
 
     past_action = np.zeros(ACTION_DIMENSION)
-
-    mlflow.start_run()
 
     for ep in range(MAX_EPISODES):
         done = False
@@ -412,12 +417,11 @@ if __name__ == '__main__':
                     # if ram.len >= before_training*MAX_STEPS:
                     result = rewards_current_episode
                     pub_result.publish(result)
-                mlflow.log_metric("reward", rewards_current_episode)
-                mlflow.log_metric("memory", ram.len)
+                writer.add_scalar("test_reward", rewards_current_episode, ep)
+                writer.add_scalar("memory", ram.len, ep)
+                writer.add_scalar("step", step, ep)
                 break
         if ep%20 == 0:
             trainer.save_models(ep)
     
-    mlflow.end_run()
-
 print('Completed Training')
