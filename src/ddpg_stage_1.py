@@ -100,16 +100,16 @@ class Critic(nn.Module):
         self.state_dim = state_dim = state_dim
         self.action_dim = action_dim
         
-        self.fc1 = NoisyLinear(state_dim, 250)
+        self.fc1 = nn.Linear(state_dim, 250)
         self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
         
-        self.fa1 = NoisyLinear(action_dim, 250)
+        self.fa1 = nn.Linear(action_dim, 250)
         self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
         
-        self.fca1 = NoisyLinear(500, 500)
+        self.fca1 = nn.Linear(500, 500)
         self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
         
-        self.fca2 = NoisyLinear(500, 1)
+        self.fca2 = nn.Linear(500, 1)
         self.fca2.weight.data.uniform_(-EPS, EPS)
         
     def forward(self, state, action):
@@ -130,13 +130,13 @@ class Actor(nn.Module):
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
         
-        self.fa1 = nn.Linear(state_dim, 500)
+        self.fa1 = NoisyLinear(state_dim, 500)
         self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
         
-        self.fa2 = nn.Linear(500, 500)
+        self.fa2 = NoisyLinear(500, 500)
         self.fa2.weight.data = fanin_init(self.fa2.weight.data.size())
         
-        self.fa3 = nn.Linear(500, action_dim)
+        self.fa3 = NoisyLinear(500, action_dim)
         self.fa3.weight.data.uniform_(-EPS,EPS)
         
     def forward(self, state):
