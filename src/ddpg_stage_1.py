@@ -332,6 +332,8 @@ noise = OUNoise(ACTION_DIMENSION)
 
 # trainer.load_models(140)
 
+mlflow.start_run()
+
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
     pub_result = rospy.Publisher('result', Float32, queue_size=5)
@@ -414,11 +416,11 @@ if __name__ == '__main__':
                     # if ram.len >= before_training*MAX_STEPS:
                     result = rewards_current_episode
                     pub_result.publish(result)
-                writer.add_scalar("test_reward", rewards_current_episode, ep)
-                writer.add_scalar("memory", ram.len, ep)
-                writer.add_scalar("step", step, ep)
+                mlflow.log_metric("test_reward", rewards_current_episode, ep)
+                mlflow.log_metric("memory", ram.len, ep)
+                mlflow.log_metric("step", step, ep)
                 break
         if ep%20 == 0:
             trainer.save_models(ep)
-    
+    mlflow.end_run()
 print('Completed Training')
