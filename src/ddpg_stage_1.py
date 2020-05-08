@@ -19,9 +19,7 @@ import torch.nn as nn
 import math
 from collections import deque
 import copy
-#import mlflow
-from torch.utils.tensorboard import SummaryWriter
-
+import mlflow
 
 #---Directory Path---#
 dirPath = os.path.dirname(os.path.realpath(__file__))
@@ -255,8 +253,8 @@ class Trainer:
         #----------------------------
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
 
-        writer.add_scalar("loss_critic", loss_critic)
-        writer.add_scalar("critic_ref", y_expected.mean())
+        mlflow.log_metric("loss_critic", loss_critic.item())
+        mlflow.log_metric("critic_ref", y_expected.mean().item())
         
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
@@ -269,7 +267,7 @@ class Trainer:
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
 
-        writer.add_scalar("loss_actor")
+        mlflow.log_metric("loss_actor", loss_actor.item())
         self.actor_optimizer.step()
         
         soft_update(self.target_actor, self.actor, TAU)
@@ -331,7 +329,6 @@ ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 
 noise = OUNoise(ACTION_DIMENSION)
-writer = SummaryWriter()
 
 # trainer.load_models(140)
 
