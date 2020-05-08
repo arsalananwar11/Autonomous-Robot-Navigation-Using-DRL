@@ -34,6 +34,29 @@ def hard_update(target,source):
     for target_param, param in zip(target.parameters(), source.parameters()):
         target_param.data.copy_(param.data)
 
+class NoisyLinear(nn.Linear):
+    def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
+        super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
+        self.sigma_weight = nn.Parameter(torch.full((out_features, in_features), sigma_init))
+        self.register_buffer("epsilon_weight", torch.zeros(out_features, in_features))
+        if bias:
+            self.sigma_bias = nn.Parameter(torch.full((out_features,), sigma_init))
+            self.register_buffer("epsilon_bias", torch.zeros(out_features))
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        std = math.sqrt(3 / self.in_features)
+        self.weight.data.uniform_(-std, std)
+        self.bias.data.uniform_(-std, std)
+
+    def forward(self, input):
+        self.epsilon_weight.normal_()
+        bias = self.bias
+        if bias is not None:
+            self.epsilon_bias.normal_()
+            bias = bias + self.sigma_bias * self.epsilon_bias.data
+        return F.linear(input, self.weight + self.sigma_weight * self.epsilon_weight.data, bias)
+
 #---Ornstein-Uhlenbeck Noise for action---#
 
 class OUNoise(object):
@@ -77,16 +100,16 @@ class Critic(nn.Module):
         self.state_dim = state_dim = state_dim
         self.action_dim = action_dim
         
-        self.fc1 = nn.Linear(state_dim, 250)
+        self.fc1 = NoisyLinear(state_dim, 250)
         self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
         
-        self.fa1 = nn.Linear(action_dim, 250)
+        self.fa1 = NoisyLinear(action_dim, 250)
         self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
         
-        self.fca1 = nn.Linear(500, 500)
+        self.fca1 = NoisyLinear(500, 500)
         self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
         
-        self.fca2 = nn.Linear(500, 1)
+        self.fca2 = NoisyLinear(500, 1)
         self.fca2.weight.data.uniform_(-EPS, EPS)
         
     def forward(self, state, action):
@@ -346,11 +369,11 @@ if __name__ == '__main__':
                 #     action[0] + np.random.uniform(-var_v, var_v), action[0] - var_v, action[0] + var_v), 0., ACTION_V_MAX)
                 # action[1] = np.clip(
                 #     np.random.normal(action[1], var_w), -ACTION_W_MAX, ACTION_W_MAX)
-                N = copy.deepcopy(noise.get_noise(t=step))
-                N[0] = round(N[0],4)*ACTION_V_MAX/2
-                N[1] = round(N[1],4)*ACTION_W_MAX
-                action[0] = np.clip(action[0] + N[0], 0., ACTION_V_MAX)
-                action[1] = np.clip(action[1] + N[1], -ACTION_W_MAX, ACTION_W_MAX)
+                 # N = copy.deepcopy(noise.get_noise(t=step))
+                 # N[0] = round(N[0],4)*ACTION_V_MAX/2
+                 # N[1] = round(N[1],4)*ACTION_W_MAX
+                 # action[0] = np.clip(action[0] + N[0], 0., ACTION_V_MAX)
+                 # action[1] = np.clip(action[1] + N[1], -ACTION_W_MAX, ACTION_W_MAX)
             else:
                 action = trainer.get_exploration_action(state)
 
