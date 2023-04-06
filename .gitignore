@@ -2,3 +2,5 @@ ___pycache__/
 *.pyc
 *.pt
 *.pth
+bin/
+obj/
