@@ -3,7 +3,7 @@
   <name>project</name>
   <version>0.0.0</version>
   <description>Autonomous Robot Navigation Using DRL</description>
-  <maintainer email="arsalan.anwar.7777@gmail.com">Dranaju</maintainer>
+  <maintainer email="arsalan.anwar.7777@gmail.com">Arsalan</maintainer>
   <license>TODO</license>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
