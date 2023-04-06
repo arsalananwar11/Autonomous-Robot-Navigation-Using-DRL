@@ -182,9 +182,7 @@ class MemoryBuffer:
             self.len = self.maxSize
         self.buffer.append(transition)
 
-#---Where the train is made---#
-
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 GAMMA = 0.99
 TAU = 0.001
@@ -311,11 +309,11 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
-STATE_DIMENSION = 14
+STATE_DIMENSION = 40
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.22 # m/s
 ACTION_W_MAX = 2. # rad/s
-world = 'stage_4'
+world = 'stage_1'
 
 if is_training:
     var_v = ACTION_V_MAX*.5
